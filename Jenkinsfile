@@ -1,10 +1,3 @@
-def loop_of_sh(list) {
-    for (int i = 0; i < list.size(); i++) {
-        sh "inspec exec /tmp/taas-integration-tests/profile/controls/ -t ssh://ec2-user@${list[i]} --reporter cli json:$BUILD_NUMBER/json/${list[i]}.output.json junit:$BUILD_NUMBER/junitreport/${list[i]}.junit.xml html:$BUILD_NUMBER/www/${list[i]}.index.html || true"
-    }
-}
-
-hosts = ['10.2.6.149']
 
 pipeline {
   agent {
@@ -22,7 +15,18 @@ metadata:
 spec:
   containers:
   - name: taas
-    image: kliu17/taas:taas_docker_image_2019_1_15_3
+    image: kliu17/taas:taas_docker_image_2019_1_15_4
+    env:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          configMapKeyRef:
+            name: eks-special-config
+            key: aws_access_key_id
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          configMapKeyRef:
+            name: eks-special-config
+            key: aws_secret_access_key
     command:
     - cat
     tty: true
@@ -32,7 +36,6 @@ spec:
 
   environment {
         AWS_REGION = 'us-east-1'
-        AWS_PROFILE = 'kenzan-scratch-platformtaas'
   }
 
   stages {
@@ -42,14 +45,12 @@ spec:
           sshagent (credentials: ['taas-ssh']) {
             sh 'inspec version'
             sh 'bundle exec kitchen'
-            sh 'echo "[profile kenzan-scratch-platformtaas]" >> ~/.aws/config'
-            sh 'echo "region = us-east-1" >> ~/.aws/config'
             sh 'aws --version'
-            sh 'aws eks update-kubeconfig --name taas'
+            sh 'aws eks update-kubeconfig --name taas --region us-east-1'
             sh 'kubectl version'
             sh 'helm init'
 	    sh 'git clone https://github.com/kliu17/taas-integration-tests /tmp/taas-integration-tests'
-	    loop_of_sh(hosts)
+            sh "inspec exec /tmp/taas-integration-tests/profile/controls/ --reporter cli json:$BUILD_NUMBER/json/taas-integration.output.json junit:$BUILD_NUMBER/junitreport/taas-integration.junit.xml html:$BUILD_NUMBER/www/taas-integration.index.html || true"
          }
         }
       }
