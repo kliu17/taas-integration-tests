@@ -1,0 +1,8 @@
+name: taas-package-installation-verification
+title: taas package installation verification
+maintainer: Kevin Liu
+copyright: Kevin Liu
+copyright_email: kliu@kenzan.com
+license: Apache-2.0
+summary: validate the TaaS package installed correctly
+version: 0.1.0
