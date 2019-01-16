@@ -17,6 +17,8 @@ kind: Pod
 metadata:
   labels:
     app: taas-jenkins-slave
+  annotations:
+    iam.amazonaws.com/role: arn:aws:iam::884956725745:role/taas-NodeInstanceRole-1P30OR4Q5QLT3
 spec:
   containers:
   - name: taas
@@ -28,6 +30,10 @@ spec:
     }
   }
 
+  environment {
+        AWS_REGION = 'us-east-1'
+        AWS_PROFILE = 'kenzan-scratch-platformtaas'
+  }
 
   stages {
     stage('build') {
@@ -36,8 +42,10 @@ spec:
           sshagent (credentials: ['taas-ssh']) {
             sh 'inspec version'
             sh 'bundle exec kitchen'
-            sh 'helm help'
-            sh 'kubectl help'
+            sh 'aws --version'
+            sh 'aws eks update-kubeconfig --name taas'
+            sh 'kubectl version'
+            sh 'helm init'
 	    sh 'git clone https://github.com/kliu17/taas-integration-tests /tmp/taas-integration-tests'
 	    loop_of_sh(hosts)
          }
