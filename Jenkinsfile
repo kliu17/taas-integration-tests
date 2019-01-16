@@ -42,8 +42,8 @@ spec:
           sshagent (credentials: ['taas-ssh']) {
             sh 'inspec version'
             sh 'bundle exec kitchen'
-            sh 'echo '[profile kenzan-scratch-platformtaas]' >> ~/.aws/config'
-            sh 'echo 'region = us-east-1' >> ~/.aws/config'
+            sh 'echo "[profile kenzan-scratch-platformtaas]" >> ~/.aws/config'
+            sh 'echo "region = us-east-1" >> ~/.aws/config'
             sh 'aws --version'
             sh 'aws eks update-kubeconfig --name taas'
             sh 'kubectl version'
