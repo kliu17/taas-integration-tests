@@ -35,6 +35,9 @@ spec:
         container('taas') {
           sshagent (credentials: ['taas-ssh']) {
             sh 'inspec version'
+            sh 'bundle exec kitchen'
+            sh 'helm help'
+            sh 'kubectl help'
 	    sh 'git clone https://github.com/kliu17/taas-integration-tests /tmp/taas-integration-tests'
 	    loop_of_sh(hosts)
          }
