@@ -51,6 +51,7 @@ spec:
             sh 'helm init'
 	    sh 'git clone https://github.com/kliu17/taas-integration-tests /tmp/taas-integration-tests'
             sh "inspec exec /tmp/taas-integration-tests/profile/controls/ --reporter cli json:$BUILD_NUMBER/json/taas-integration.output.json junit:$BUILD_NUMBER/junitreport/taas-integration.junit.xml html:$BUILD_NUMBER/www/taas-integration.index.html || true"
+            sh "/es_loader.sh store-elasticsearch-client $BUILD_NUMBER/json/taas-integration.output.json"
          }
         }
       }
